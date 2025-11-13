@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Juego de Ahorcado</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background-color: #f9f9f9;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    #palabraOculta {
+      font-size: 32px;
+      letter-spacing: 10px;
+      margin-bottom: 20px;
+    }
+
+    #letras {
+      margin-top: 20px;
+    }
+
+    .letra {
+      display: inline-block;
+      margin: 5px;
+      font-size: 24px;
+      padding: 10px 15px;
+      background-color: #e0e0e0;
+      cursor: pointer;
+      border-radius: 5px;
+      user-select: none;
+    }
+
+    .letra:hover {
+      background-color: #d0d0d0;
+    }
+
+    .letra.usada {
+      background-color: #bbb;
+      pointer-events: none;
+    }
+
+    #intentos {
+      font-size: 20px;
+      margin-top: 15px;
+      color: #333;
+    }
+
+    #mensaje {
+      font-size: 28px;
+      margin-top: 20px;
+      color: green;
+    }
+
+    #reiniciar {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Juego de Ahorcado</h1>
+  <div id="palabraOculta"></div>
+  <div id="letras"></div>
+  <div id="intentos">Intentos restantes: 6</div>
+  <div id="mensaje"></div>
+  <button id="reiniciar">Reiniciar</button>
+
+  <script>
+    const palabras = ["javascript", "computadora", "ahorcado", "programacion", "teclado", "pantalla"];
+    let palabra = "";
+    let palabraMostrada = [];
+    let intentosRestantes = 6;
+
+    const palabraOculta = document.getElementById("palabraOculta");
+    const letrasDiv = document.getElementById("letras");
+    const intentosDiv = document.getElementById("intentos");
+    const mensajeDiv = document.getElementById("mensaje");
+    const reiniciarBtn = document.getElementById("reiniciar");
+
+    function iniciarJuego() {
+      palabra = palabras[Math.floor(Math.random() * palabras.length)];
+      palabraMostrada = Array(palabra.length).fill("_");
+      intentosRestantes = 6;
+      actualizarVista();
+      generarLetras();
+      mensajeDiv.textContent = "";
+    }
+
+    function actualizarVista() {
+      palabraOculta.textContent = palabraMostrada.join(" ");
+      intentosDiv.textContent = `Intentos restantes: ${intentosRestantes}`;
+    }
+
+    function generarLetras() {
+      letrasDiv.innerHTML = "";
+      for (let i = 65; i <= 90; i++) {
+        const letra = String.fromCharCode(i).toLowerCase();
+        const span = document.createElement("span");
+        span.textContent = letra;
+        span.classList.add("letra");
+        span.addEventListener("click", () => manejarLetra(letra, span));
+        letrasDiv.appendChild(span);
+      }
+    }
+
+    function manejarLetra(letra, spanElemento) {
+      spanElemento.classList.add("usada");
+
+      if (palabra.includes(letra)) {
+        for (let i = 0; i < palabra.length; i++) {
+          if (palabra[i] === letra) {
+            palabraMostrada[i] = letra;
+          }
+        }
+        actualizarVista();
+        verificarGanador();
+      } else {
+        intentosRestantes--;
+        actualizarVista();
+        verificarPerdedor();
+      }
+    }
+
+    function verificarGanador() {
+      if (!palabraMostrada.includes("_")) {
+        mensajeDiv.textContent = "¡Ganaste!";
+        desactivarLetras();
+      }
+    }
+
+    function verificarPerdedor() {
+      if (intentosRestantes <= 0) {
+        mensajeDiv.textContent = `Perdiste. La palabra era: ${palabra}`;
+        palabraMostrada = palabra.split("");
+        actualizarVista();
+        desactivarLetras();
+      }
+    }
+
+    function desactivarLetras() {
+      const letras = document.querySelectorAll(".letra");
+      letras.forEach(letra => letra.classList.add("usada"));
+    }
+
+    reiniciarBtn.addEventListener("click", iniciarJuego);
+
+    iniciarJuego();
+  </script>
+
+</body>
+</html>
